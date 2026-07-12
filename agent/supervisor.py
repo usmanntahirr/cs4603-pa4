@@ -18,10 +18,32 @@ SYNTH = "synthesizer"
 
 def make_supervisor(llm):
     def supervisor(state: AnalystState) -> dict:
-        raise NotImplementedError("Task 1.3: implement the supervisor node")
+
+        if state["current_step_index"] >= len(state["plan"]):
+            return {
+                "next_agent": SYNTH
+            }
+        
+        current_step = state["plan"][state["current_step_index"]]
+        current_step_lower = current_step.lower()
+
+        if any(word in current_step_lower for word in ["find", "retrieve", "look up", "document", "report"]):
+            return{
+                "next_agent": RAG
+            }
+        
+        if any(word in current_step_lower for word in ["calculate", "compute", "percentage", "growth", "ratio", "compare"]):
+            return{
+                "next_agent": MCP
+            }
+        
+        return{
+            "next_agent": RAG #just fallback to rag if no keywords found
+        }
 
     return supervisor
 
 
 def route_from_supervisor(state: AnalystState) -> str:
-    raise NotImplementedError("Task 1.3: return state['next_agent']")
+    supervisor_decision = state["next_agent"] 
+    return supervisor_decision
