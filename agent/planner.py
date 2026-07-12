@@ -14,6 +14,17 @@ from agent.state import AnalystState
 
 def make_planner(llm):
     def planner(state: AnalystState) -> dict:
-        raise NotImplementedError("Task 1.2: implement the planner node")
+        user_question = state["messages"][-1].content
+        response = (
+            llm.invoke([
+                ("system", "Break down the user's question into 2-5 atomic steps. Return only a JSON list of strings."),
+                ("user", user_question)
+            ])
+        )
+
+        state["plan"] = response[0].content
+        
+    
+
 
     return planner
